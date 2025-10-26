@@ -38,4 +38,24 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      -
+      - name: Run unit tests
+        run: |
+          dotnet test ./Horizons.Tests.Unit/Horizons.Tests.Unit.csproj \
+          --no-build --configuration Release --verbosity normal
+
+  integration-tests:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Run integration tests
+        run: |
+          dotnet test ./Horizons.Tests.Integration/Horizons.Tests.Integration.csproj \
+          --no-build --configuration Release --verbosity normal
