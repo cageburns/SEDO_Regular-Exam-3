@@ -1,26 +1,36 @@
-
-name: Build and Test
+name: CI
 
 on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+ push:
+ branches: [ main ]
+ pull_request:
+ branches: [ main ]
 
 jobs:
-  build:
+ build:
+ runs-on: ubuntu-latest
 
-    runs-on: ubuntu-latest
+ steps:
+ - name: Checkout repository
+ uses: actions/checkout@v4
 
-    steps:
-    - uses: actions/checkout@v4
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 8.0.x
-    - name: Restore dependencies
-      run: dotnet restore
-    - name: Build
-      run: dotnet build --no-restore
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
+ - name: Setup .NET
+ uses: actions/setup-dotnet@v3
+ with:
+ dotnet-version: '8.0.x'
+
+ - name: Restore dependencies
+ run: dotnet restore
+
+ - name: Build
+ run: dotnet build --configuration Release --no-restore
+
+ - name: Run unit tests
+ run: |
+ dotnet test ./Horizons.Tests.Unit/Horizons.Tests.Unit.csproj \
+ --no-build --configuration Release --verbosity normal
+
+ - name: Run integration tests
+ run: |
+ dotnet test ./Horizons.Tests.Integration/Horizons.Tests.Integration.csproj \
+ --no-build --configuration Release --verbosity normal
