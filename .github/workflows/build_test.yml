@@ -32,7 +32,7 @@ jobs:
       with:
         dotnet-version: 8.0.x
     - name: Run unit tests
-      run: dotnet test Horizons.Tests.Unit/Horizons.Tests.Unit.csproj --no-build --verbosity normal
+      run: dotnet test Horizons.Tests.Unit/Horizons.Tests.Unit.csproj --no-build --configuration Release --logger "console;verbosity=detailed"
 
   integration-tests:
     runs-on: ubuntu-latest
@@ -45,4 +45,4 @@ jobs:
       with:
         dotnet-version: 8.0.x
     - name: Run integration tests
-      run: dotnet test Horizons.Tests.Integration/Horizons.Tests.Integration.csproj --no-build --verbosity normal
+      run: dotnet test Horizons.Tests.Integration/Horizons.Tests.Integration.csproj --no-build --configuration Release --logger "console;verbosity=detailed"
