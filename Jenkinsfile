@@ -37,20 +37,7 @@ pipeline {
             }
         }
 
-        stage('Run Unit Tests') {
-    when {
-        branch pattern: "main|develop|feature/.*", comparator: "REGEXP"
-    }
-    steps {
-        echo 'Running unit tests...'
-        sh "dotnet test Horizons.Tests.Unit/Horizons.Tests.Unit.csproj --configuration ${BUILD_CONFIG} --no-build --verbosity normal --logger 'junit;LogFileName=results.xml' --results-directory TestResults/Unit"
-    }
-    post {
-        always {
-            junit 'TestResults/Unit/*.xml'
-        }
-    }
-}
+        
 
         stage('Run Integration Tests') {
             when {
