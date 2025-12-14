@@ -46,10 +46,10 @@ pipeline {
                 sh "dotnet test Horizons.Tests.Unit/Horizons.Tests.Unit.csproj --configuration ${BUILD_CONFIG} --no-build --verbosity normal --logger trx --results-directory TestResults/Unit"
             }
             post {
-            always {
-                    junit 'TestResults/**/*.trx'
-                    }
-}
+                always {
+                    junit 'TestResults/Unit/*.trx'
+                        }
+            }
         }
 
         stage('Run Integration Tests') {
