@@ -105,13 +105,11 @@ pipeline {
     post {
         success {
             echo 'Pipeline completed successfully!'
-            // Optional: Send notifications
-            // emailext body: 'Build succeeded', subject: 'Jenkins Build Success', to: 'team@example.com'
+           
         }
         failure {
             echo 'Pipeline failed.'
-            // Optional: Send failure notifications
-            // emailext body: 'Build failed', subject: 'Jenkins Build Failed', to: 'team@example.com'
+          
         }
         always {
             echo 'Cleaning up workspace...'
