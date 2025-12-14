@@ -23,7 +23,7 @@ pipeline {
             }
             steps {
                 echo 'Restoring NuGet packages...'
-                bat "dotnet restore ${SOLUTION_FILE}"
+                sh "dotnet restore ${SOLUTION_FILE}"
             }
         }
 
@@ -33,7 +33,7 @@ pipeline {
             }
             steps {
                 echo "Building solution in ${BUILD_CONFIG} configuration..."
-                bat "dotnet build ${SOLUTION_FILE} --configuration ${BUILD_CONFIG} --no-restore"
+                sh "dotnet build ${SOLUTION_FILE} --configuration ${BUILD_CONFIG} --no-restore"
             }
         }
 
@@ -43,7 +43,7 @@ pipeline {
             }
             steps {
                 echo 'Running unit tests...'
-                bat "dotnet test Horizons.Tests.Unit/Horizons.Tests.Unit.csproj --configuration ${BUILD_CONFIG} --no-build --verbosity normal --logger trx --results-directory TestResults/Unit"
+                sh "dotnet test Horizons.Tests.Unit/Horizons.Tests.Unit.csproj --configuration ${BUILD_CONFIG} --no-build --verbosity normal --logger trx --results-directory TestResults/Unit"
             }
             post {
                 always {
@@ -59,7 +59,7 @@ pipeline {
             }
             steps {
                 echo 'Running integration tests...'
-                bat "dotnet test Horizons.Tests.Integration/Horizons.Tests.Integration.csproj --configuration ${BUILD_CONFIG} --no-build --verbosity normal --logger trx --results-directory TestResults/Integration"
+                sh "dotnet test Horizons.Tests.Integration/Horizons.Tests.Integration.csproj --configuration ${BUILD_CONFIG} --no-build --verbosity normal --logger trx --results-directory TestResults/Integration"
             }
             post {
                 always {
@@ -75,7 +75,7 @@ pipeline {
             }
             steps {
                 echo 'Publishing application...'
-                bat "dotnet publish ${PROJECT_NAME}/${PROJECT_NAME}.csproj --configuration ${BUILD_CONFIG} --output ./publish --no-build"
+                sh "dotnet publish ${PROJECT_NAME}/${PROJECT_NAME}.csproj --configuration ${BUILD_CONFIG} --output ./publish --no-build"
             }
         }
 
@@ -96,8 +96,8 @@ pipeline {
             steps {
                 echo 'Deploying to production...'
                 // Add your deployment steps here
-                // Example: bat 'deploy-script.bat'
-                // Or use specific plugins for IIS, Azure, AWS, etc.
+                // Example: sh './deploy-script.sh'
+                // Or use specific plugins for Docker, Kubernetes, Azure, AWS, etc.
             }
         }
     }
