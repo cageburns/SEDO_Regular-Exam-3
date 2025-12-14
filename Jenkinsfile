@@ -1,0 +1,121 @@
+pipeline {
+    agent any
+
+    environment {
+        DOTNET_CLI_HOME = "${WORKSPACE}/.dotnet"
+        DOTNET_ROOT = "${WORKSPACE}/.dotnet"
+        PROJECT_NAME = 'Horizons'
+        SOLUTION_FILE = 'Horizons.sln'
+        BUILD_CONFIG = 'Release'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                echo 'Checking out source code...'
+                checkout scm
+            }
+        }
+
+        stage('Restore Dependencies') {
+            when {
+                branch pattern: "main|develop|feature/.*", comparator: "REGEXP"
+            }
+            steps {
+                echo 'Restoring NuGet packages...'
+                bat "dotnet restore ${SOLUTION_FILE}"
+            }
+        }
+
+        stage('Build') {
+            when {
+                branch pattern: "main|develop|feature/.*", comparator: "REGEXP"
+            }
+            steps {
+                echo "Building solution in ${BUILD_CONFIG} configuration..."
+                bat "dotnet build ${SOLUTION_FILE} --configuration ${BUILD_CONFIG} --no-restore"
+            }
+        }
+
+        stage('Run Unit Tests') {
+            when {
+                branch pattern: "main|develop|feature/.*", comparator: "REGEXP"
+            }
+            steps {
+                echo 'Running unit tests...'
+                bat "dotnet test Horizons.Tests.Unit/Horizons.Tests.Unit.csproj --configuration ${BUILD_CONFIG} --no-build --verbosity normal --logger trx --results-directory TestResults/Unit"
+            }
+            post {
+                always {
+                    // Publish unit test results
+                    mstest testResultsFile: '**/TestResults/Unit/*.trx', keepLongStdio: true
+                }
+            }
+        }
+
+        stage('Run Integration Tests') {
+            when {
+                branch pattern: "main|develop|feature/.*", comparator: "REGEXP"
+            }
+            steps {
+                echo 'Running integration tests...'
+                bat "dotnet test Horizons.Tests.Integration/Horizons.Tests.Integration.csproj --configuration ${BUILD_CONFIG} --no-build --verbosity normal --logger trx --results-directory TestResults/Integration"
+            }
+            post {
+                always {
+                    // Publish integration test results
+                    mstest testResultsFile: '**/TestResults/Integration/*.trx', keepLongStdio: true
+                }
+            }
+        }
+
+        stage('Publish') {
+            when {
+                branch pattern: "main|develop|feature/.*", comparator: "REGEXP"
+            }
+            steps {
+                echo 'Publishing application...'
+                bat "dotnet publish ${PROJECT_NAME}/${PROJECT_NAME}.csproj --configuration ${BUILD_CONFIG} --output ./publish --no-build"
+            }
+        }
+
+        stage('Archive Artifacts') {
+            when {
+                branch pattern: "main|develop|feature/.*", comparator: "REGEXP"
+            }
+            steps {
+                echo 'Archiving build artifacts...'
+                archiveArtifacts artifacts: 'publish/**/*', fingerprint: true
+            }
+        }
+
+        stage('Deploy') {
+            when {
+                branch 'main'
+            }
+            steps {
+                echo 'Deploying to production...'
+                // Add your deployment steps here
+                // Example: bat 'deploy-script.bat'
+                // Or use specific plugins for IIS, Azure, AWS, etc.
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline completed successfully!'
+            // Optional: Send notifications
+            // emailext body: 'Build succeeded', subject: 'Jenkins Build Success', to: 'team@example.com'
+        }
+        failure {
+            echo 'Pipeline failed.'
+            // Optional: Send failure notifications
+            // emailext body: 'Build failed', subject: 'Jenkins Build Failed', to: 'team@example.com'
+        }
+        always {
+            echo 'Cleaning up workspace...'
+            cleanWs(deleteDirs: true, patterns: [[pattern: '**/TestResults/**', type: 'INCLUDE']])
+        }
+    }
+}
