@@ -61,12 +61,7 @@ pipeline {
                 echo 'Running integration tests...'
                 sh "dotnet test Horizons.Tests.Integration/Horizons.Tests.Integration.csproj --configuration ${BUILD_CONFIG} --no-build --verbosity normal --logger trx --results-directory TestResults/Integration"
             }
-            post {
-                always {
-                    // Publish integration test results
-                    mstest testResultsFile: '**/TestResults/Integration/*.trx', keepLongStdio: true
-                }
-            }
+            
         }
 
         stage('Publish') {
